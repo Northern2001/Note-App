@@ -1,43 +1,35 @@
+@file:OptIn(InternalCoroutinesApi::class)
+
 package com.example.noteapp
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material.MaterialTheme
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Surface
-import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import com.example.noteapp.ui.theme.NoteAppTheme
+import androidx.compose.ui.ExperimentalComposeUiApi
+import coil.annotation.ExperimentalCoilApi
+import com.example.noteapp.common.RootRouter
+import com.facebook.CallbackManager
+import com.google.accompanist.pager.ExperimentalPagerApi
+import kotlinx.coroutines.InternalCoroutinesApi
 
 class MainActivity : ComponentActivity() {
+    private var callbackManager = CallbackManager.Factory.create()
+
+    @OptIn(
+        ExperimentalAnimationApi::class, ExperimentalMaterialApi::class,
+        ExperimentalFoundationApi::class, InternalCoroutinesApi::class,
+        ExperimentalComposeUiApi::class, ExperimentalPagerApi::class, ExperimentalCoilApi::class,
+    )
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            NoteAppTheme {
-                // A surface container using the 'background' color from the theme
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colors.background
-                ) {
-                    Greeting("Android")
-                }
+            Surface {
+                RootRouter()
             }
         }
-    }
-}
-
-@Composable
-fun Greeting(name: String) {
-    Text(text = "Hello $name!")
-}
-
-@Preview(showBackground = true)
-@Composable
-fun DefaultPreview() {
-    NoteAppTheme {
-        Greeting("Android")
     }
 }

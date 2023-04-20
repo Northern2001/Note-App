@@ -1,0 +1,42 @@
+package com.example.noteapp.screen.home
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.example.noteapp.model.FolderModel
+import com.example.noteapp.ui.theme.borderItemFolder
+import com.example.noteapp.ui.theme.colorItemFolder
+
+@Composable
+fun ItemFolder(model: FolderModel, onClick: () -> Unit) {
+    Box(
+        modifier = Modifier
+            .padding(end = 16.dp)
+            .clip(RoundedCornerShape(24.dp))
+            .background(colorItemFolder.copy(alpha = if (model.isSelected) 1f else 0f))
+            .border(
+                1.dp,
+                color = if (model.isSelected) colorItemFolder else borderItemFolder,
+                RoundedCornerShape(24.dp)
+            )
+            .clickable { onClick() }
+            .padding(vertical = 12.dp, horizontal = 24.dp)
+
+    ) {
+        Text(
+            text = model.name,
+            fontWeight = FontWeight.SemiBold,
+            fontSize = 18.sp
+        )
+    }
+}
