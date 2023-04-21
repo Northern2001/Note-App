@@ -16,11 +16,13 @@ import com.example.noteapp.R
 import com.example.noteapp.base.BaseButton
 import com.example.noteapp.base.CircleImage
 import com.example.noteapp.base.backGroundGradient
+import com.example.noteapp.model.FileModel
+import com.example.noteapp.model.FolderModel
 import com.example.noteapp.ui.theme.black
 import com.example.noteapp.ui.theme.colorFFFFD5F8
 
 @Composable
-fun ItemFile() {
+fun ItemFile(model: FileModel, list: List<FolderModel>, onClick: () -> Unit) {
     ConstraintLayout(
         Modifier
             .padding(bottom = 20.dp)
@@ -29,7 +31,8 @@ fun ItemFile() {
             .fillMaxWidth()
             .padding(vertical = 15.dp, horizontal = 20.dp)
     ) {
-        var (icon, content, button,forward) = createRefs()
+        var titleFolder = list.find { model.idFolder == it.idFolder }?.title
+        var (icon, content, button, forward) = createRefs()
         Box(
             Modifier
                 .constrainAs(icon) {
@@ -53,12 +56,12 @@ fun ItemFile() {
                 .padding(top = 40.dp)
         ) {
             Text(
-                text = "Technical Drawing Fundamentals",
+                text = model.title ?: "",
                 fontSize = 29.sp,
                 fontWeight = FontWeight.Medium,
             )
             Text(
-                text = "Class Notes",
+                text = titleFolder ?: "",
                 fontWeight = FontWeight.Medium,
                 modifier = Modifier.padding(top = 5.dp)
             )
@@ -70,7 +73,7 @@ fun ItemFile() {
                     start.linkTo(parent.start)
                 }
                 .padding(top = 25.dp)) {
-            BaseButton("250 words") {
+            BaseButton("${model.content?.length} words") {
             }
         }
         CircleImage(
@@ -82,6 +85,8 @@ fun ItemFile() {
                 .size(88.dp)
                 .clip(RoundedCornerShape(44.dp))
                 .background(colorFFFFD5F8)
-        ) { }
+        ) {
+            onClick()
+        }
     }
 }

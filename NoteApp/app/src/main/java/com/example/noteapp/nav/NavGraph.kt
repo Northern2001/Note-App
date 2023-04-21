@@ -22,7 +22,8 @@ fun NavGraphBuilder.authGraph() {
         }
         composable(DestinationName(true).detailScreen) {
             DetailScreen(
-                it.arguments?.getString(ParamName.ID_FOLDER)?:""
+                it.arguments?.getString(ParamName.ID_FOLDER)?:"",
+                it.arguments?.getString(ParamName.ID_FILE)?:""
             )
         }
     }

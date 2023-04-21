@@ -68,7 +68,8 @@ fun CommonDialog(
                 focusedIndicatorColor = Color.Transparent,
                 unfocusedIndicatorColor = Color.Transparent,
                 disabledIndicatorColor = Color.Transparent
-            )
+            ),
+                maxLines = 1
                 )
             Spacer(
                 modifier = Modifier

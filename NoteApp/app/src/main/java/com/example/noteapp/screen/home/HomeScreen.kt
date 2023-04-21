@@ -1,6 +1,5 @@
 package com.example.noteapp.screen.home
 
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -57,18 +56,20 @@ fun HomeScreen() {
         listFolder = dummy
     }
 
-    fun reloadListFile() {
+    fun reloadListFile(model: FolderModel) {
+        listFile = databaseFile.findListWithId(model.idFolder.toString())
         val dummy = listFile
         listFile = arrayListOf()
         listFile = dummy
     }
 
-    fun addNewFolder(){
+    fun addNewFolder() {
         if (value.isNotEmpty())
             databaseFolder.insertAll(FolderModel(title = value))
         listFolder = databaseFolder.getListFolder()
         listFolder.find { it.isSelected }?.isSelected = false
-        listFolder[listFolder.size-1].isSelected = true
+        listFolder[listFolder.size - 1].isSelected = true
+        reloadListFile(listFolder[listFolder.size - 1])
         value = ""
         reloadListFolder()
         isShowDiaLogAddNew = false
@@ -77,7 +78,7 @@ fun HomeScreen() {
 
     LaunchedEffect(Unit) {
         listFolder = databaseFolder.getListFolder()
-        listFile = databaseFile.getListFile().filter { modelFolder.idFolder == it.idFolder && modelFolder.isSelected }
+        listFile = databaseFile.findListWithId(modelFolder.idFolder.toString())
     }
 
     BaseBottomSheet(
@@ -95,9 +96,7 @@ fun HomeScreen() {
                 OptionBottomSheet("Create File") {
                     rootController?.navigate(
                         DestinationWithParam.getDetailParams(
-                            listFolder.find {
-                                it.isSelected
-                            }?.idFolder.toString()
+                            listFolder.find { it.isSelected }?.idFolder.toString()
                         )
                     )
                 }
@@ -133,19 +132,26 @@ fun HomeScreen() {
                     LazyRow(modifier = Modifier.padding(top = 20.dp), content = {
                         items(listFolder.reversed()) {
                             modelFolder = it
-                            ItemFolder(model = it) {
+                            ItemFolder(
+                                model = it,
+                                total = databaseFile.findListWithId(it.idFolder.toString()).size
+                            ) {
                                 listFolder.find { it.isSelected }?.isSelected = false
                                 it.isSelected = !it.isSelected
-                                Log.e("testid", "${ it.isSelected}${it.idFolder}")
-                                val dummy = listFolder
-                                listFolder = arrayListOf()
-                                listFolder = dummy
+                                reloadListFolder()
+                                reloadListFile(it)
                             }
                         }
                     })
                     LazyColumn(modifier = Modifier.padding(top = 12.dp), content = {
-                        items(listFile) {
-                            ItemFile()
+                        items(listFile.reversed()) {
+                            ItemFile(it, listFolder) {
+                                rootController?.navigate(
+                                    DestinationWithParam.getDetailParams(
+                                        idFile = it.idFile.toString()
+                                    )
+                                )
+                            }
                         }
                     })
                 }

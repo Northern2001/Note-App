@@ -18,7 +18,7 @@ import com.example.noteapp.ui.theme.borderItemFolder
 import com.example.noteapp.ui.theme.colorItemFolder
 
 @Composable
-fun ItemFolder(model: FolderModel, onClick: () -> Unit) {
+fun ItemFolder(model: FolderModel, total: Int, onClick: () -> Unit) {
     Box(
         modifier = Modifier
             .padding(end = 16.dp)
@@ -34,7 +34,7 @@ fun ItemFolder(model: FolderModel, onClick: () -> Unit) {
 
     ) {
         Text(
-            text = model.title ?: "",
+            text = model.title + if (total > 0) " (${total})" else "",
             fontWeight = FontWeight.SemiBold,
             fontSize = 18.sp
         )

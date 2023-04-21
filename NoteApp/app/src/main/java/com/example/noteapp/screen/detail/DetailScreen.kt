@@ -21,7 +21,7 @@ import com.example.noteapp.nav.RouterManager
 import com.example.noteapp.ui.theme.colorBackGround
 
 @Composable
-fun DetailScreen(idFolder: String) {
+fun DetailScreen(idFolder: String, idFile: String) {
     val rootController = RouterManager.current.rootController
     var value by remember { mutableStateOf("") }
     var title by remember { mutableStateOf("") }
@@ -29,12 +29,26 @@ fun DetailScreen(idFolder: String) {
     val context = LocalContext.current
     var database = CommonDatabase.current.getDatabase(context)
 
+    LaunchedEffect(Unit) {
+        if (idFile.isEmpty()) {
+            model.idFolder = idFolder.toInt()
+        } else {
+            model = database.daoFile().getTour(idFile.toInt())
+            title = model.title ?: ""
+            value = model.content ?: ""
+        }
+
+    }
     BaseBackground() {
         Row(Modifier.padding(top = 12.dp)) {
             CircleImage(icon = R.drawable.ic_back) {
                 rootController?.popBackStack()
-                if (title.isNotEmpty() && value.isNotEmpty()){
-                    database.daoFile().insertAll(model)
+                if (idFile.isEmpty()) {
+                    if (title.isNotEmpty() && value.isNotEmpty()) {
+                        database.daoFile().insertAll(model)
+                    }
+                } else {
+                    database.daoFile().updateTour(idFile.toInt(), title, value)
                 }
             }
             Spacer(modifier = Modifier.weight(1f))
@@ -47,9 +61,6 @@ fun DetailScreen(idFolder: String) {
             }
         }
 
-        LaunchedEffect(Unit ){
-            model.idFolder = idFolder.toInt()
-        }
         TextField(
             modifier = Modifier
                 .fillMaxWidth(),
@@ -79,7 +90,7 @@ fun DetailScreen(idFolder: String) {
             placeholder = { Text(text = "Content here...") },
             onValueChange = {
                 value = it
-                model.title = title
+                model.content = value
             },
             colors = TextFieldDefaults.textFieldColors(
                 textColor = Color.Black,

@@ -1,11 +1,8 @@
 package com.example.noteapp.dao
 
-import androidx.room.Dao
-import androidx.room.Delete
-import androidx.room.Insert
-import androidx.room.Query
+import androidx.room.*
 import com.example.noteapp.model.FileModel
-import com.example.noteapp.model.FolderModel
+
 
 @Dao
 interface FileDao {
@@ -17,5 +14,20 @@ interface FileDao {
 
     @Delete
     fun delete(user: FileModel)
+    @Query("SELECT * FROM filemodel WHERE id_folder =:id ")
+    fun findListWithId(id: String): List<FileModel>
+
+    @Query("SELECT * FROM filemodel WHERE idFile == :id")
+    fun getTour(id: Int): FileModel
+
+    @Update
+    fun updateTour(tour: FileModel?): Int
+    fun updateTour(id: Int, title: String,content : String) {
+        val tour: FileModel = getTour(id)
+        tour.title = title
+        tour.content = content
+        updateTour(tour)
+    }
+
 
 }
