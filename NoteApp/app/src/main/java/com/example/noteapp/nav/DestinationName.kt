@@ -7,7 +7,7 @@ class DestinationName(isHasParam : Boolean = false) {
         "homeScreen"
     }
     val detailScreen = if (isHasParam){
-        "detailScreen"
+        "detailScreen?${ParamName.ID_FOLDER}={${ParamName.ID_FOLDER}}"
     }else{
         "detailScreen"
     }

@@ -5,9 +5,9 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 @Entity
-data class FolderModel(
-    @PrimaryKey val idFolder: Int? = null,
+data class FileModel(
+    @PrimaryKey val idFile: Int? = null,
+    @ColumnInfo(name = "id_folder") var idFolder: Int? = null,
     @ColumnInfo(name = "title") var title: String? = null,
-//    @ColumnInfo (name = "listFile") val listFile : List<FileModel>,
-    var isSelected: Boolean = false
+    @ColumnInfo(name = "content") var content: String? = null,
 )

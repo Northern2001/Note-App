@@ -1,5 +1,6 @@
 package com.example.noteapp.screen.home
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -13,25 +14,34 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.noteapp.R
 import com.example.noteapp.base.*
-import com.example.noteapp.mock.MockFolder
+import com.example.noteapp.common.CommonDatabase
+import com.example.noteapp.common.CommonDialog
+import com.example.noteapp.model.FileModel
 import com.example.noteapp.model.FolderModel
 import com.example.noteapp.nav.DestinationWithParam
 import com.example.noteapp.nav.RouterManager
+import com.example.noteapp.ui.theme.black
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun HomeScreen() {
     var modelFolder by remember { mutableStateOf(FolderModel()) }
-    var listFolder by remember { mutableStateOf(MockFolder.listFolder) }
+    var listFolder by remember { mutableStateOf(listOf<FolderModel>()) }
+    var listFile by remember { mutableStateOf(listOf<FileModel>()) }
     var isShowBackgroundBottomSheet by remember { mutableStateOf(false) }
     var rootController = RouterManager.current.rootController
+    val context = LocalContext.current
+    var isShowDiaLogAddNew by remember { mutableStateOf(false) }
+    var databaseFolder = CommonDatabase.current.getDatabase(context).daoFolder()
+    var databaseFile = CommonDatabase.current.getDatabase(context).daoFile()
+    var value by remember { mutableStateOf("") }
 
     fun hiddenBottomSheet() {
         isShowBackgroundBottomSheet = false
@@ -41,20 +51,61 @@ fun HomeScreen() {
         isShowBackgroundBottomSheet = true
     }
 
+    fun reloadListFolder() {
+        val dummy = listFolder
+        listFolder = arrayListOf()
+        listFolder = dummy
+    }
+
+    fun reloadListFile() {
+        val dummy = listFile
+        listFile = arrayListOf()
+        listFile = dummy
+    }
+
+    fun addNewFolder(){
+        if (value.isNotEmpty())
+            databaseFolder.insertAll(FolderModel(title = value))
+        listFolder = databaseFolder.getListFolder()
+        listFolder.find { it.isSelected }?.isSelected = false
+        listFolder[listFolder.size-1].isSelected = true
+        value = ""
+        reloadListFolder()
+        isShowDiaLogAddNew = false
+        hiddenBottomSheet()
+    }
+
+    LaunchedEffect(Unit) {
+        listFolder = databaseFolder.getListFolder()
+        listFile = databaseFile.getListFile().filter { modelFolder.idFolder == it.idFolder && modelFolder.isSelected }
+    }
+
     BaseBottomSheet(
         sheetContent = {
-            OptionBottomSheet("Create Folder",R.drawable.ic_folder){
-                rootController?.navigate(
-                    DestinationWithParam.getDetailParams()
-                )
+            OptionBottomSheet("Create Folder") {
+                isShowDiaLogAddNew = true
             }
-            OptionBottomSheet("Create File",R.drawable.ic_file){
-
+            if (listFolder.isEmpty().not()) {
+                Spacer(
+                    modifier = Modifier
+                        .height(1.dp)
+                        .fillMaxWidth()
+                        .background(black.copy(0.5f))
+                )
+                OptionBottomSheet("Create File") {
+                    rootController?.navigate(
+                        DestinationWithParam.getDetailParams(
+                            listFolder.find {
+                                it.isSelected
+                            }?.idFolder.toString()
+                        )
+                    )
+                }
             }
         },
         isShowBackgroundBottomSheet = isShowBackgroundBottomSheet,
         onHidden = { hiddenBottomSheet() }) {
-        BaseBackground() {
+        BaseBackground {
             Box(Modifier.fillMaxSize()) {
                 Column {
                     Row(
@@ -80,11 +131,12 @@ fun HomeScreen() {
                     }
                     Text(text = "My\nNotes", fontSize = 64.sp, fontWeight = FontWeight.Medium)
                     LazyRow(modifier = Modifier.padding(top = 20.dp), content = {
-                        items(listFolder) {
+                        items(listFolder.reversed()) {
                             modelFolder = it
                             ItemFolder(model = it) {
                                 listFolder.find { it.isSelected }?.isSelected = false
                                 it.isSelected = !it.isSelected
+                                Log.e("testid", "${ it.isSelected}${it.idFolder}")
                                 val dummy = listFolder
                                 listFolder = arrayListOf()
                                 listFolder = dummy
@@ -92,10 +144,22 @@ fun HomeScreen() {
                         }
                     })
                     LazyColumn(modifier = Modifier.padding(top = 12.dp), content = {
-                        items(5) {
+                        items(listFile) {
                             ItemFile()
                         }
                     })
+                }
+            }
+            if (isShowDiaLogAddNew) {
+                CommonDialog(value = value, onChangeValue = {
+                    value = it
+                }, onDismissRequest = {
+                    isShowDiaLogAddNew = false
+                    value = ""
+                }, onClose = {
+                    value = ""
+                }) {
+                    addNewFolder()
                 }
             }
         }

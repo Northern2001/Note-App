@@ -34,7 +34,7 @@ fun ItemFolder(model: FolderModel, onClick: () -> Unit) {
 
     ) {
         Text(
-            text = model.name,
+            text = model.title ?: "",
             fontWeight = FontWeight.SemiBold,
             fontSize = 18.sp
         )
