@@ -1,12 +1,14 @@
 package com.example.noteapp.screen.home
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -22,7 +24,12 @@ import com.example.noteapp.ui.theme.black
 import com.example.noteapp.ui.theme.colorFFFFD5F8
 
 @Composable
-fun ItemFile(model: FileModel, list: List<FolderModel>, onClick: () -> Unit) {
+fun ItemFile(
+    model: FileModel,
+    list: List<FolderModel>,
+    onLongClick: (FileModel) -> Unit,
+    onClick: () -> Unit
+) {
     ConstraintLayout(
         Modifier
             .padding(bottom = 20.dp)
@@ -30,6 +37,13 @@ fun ItemFile(model: FileModel, list: List<FolderModel>, onClick: () -> Unit) {
             .backGroundGradient()
             .fillMaxWidth()
             .padding(vertical = 15.dp, horizontal = 20.dp)
+            .pointerInput(model) {
+                detectTapGestures(
+                    onLongPress = {
+                        onLongClick(model)
+                    }
+                )
+            }
     ) {
         var titleFolder = list.find { model.idFolder == it.idFolder }?.title
         var (icon, content, button, forward) = createRefs()

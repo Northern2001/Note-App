@@ -12,16 +12,19 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.noteapp.R
 import com.example.noteapp.base.BaseBackground
 import com.example.noteapp.base.CircleImage
 import com.example.noteapp.common.CommonDatabase
+import com.example.noteapp.common.ReloadManager
 import com.example.noteapp.model.FileModel
 import com.example.noteapp.nav.RouterManager
 import com.example.noteapp.ui.theme.colorBackGround
+import com.example.noteapp.viewmodel.FolderViewModel
 
 @Composable
-fun DetailScreen(idFolder: String, idFile: String) {
+fun DetailScreen(idFolder: String, idFile: String, folderViewModel: FolderViewModel = viewModel()) {
     val rootController = RouterManager.current.rootController
     var value by remember { mutableStateOf("") }
     var title by remember { mutableStateOf("") }
@@ -44,12 +47,13 @@ fun DetailScreen(idFolder: String, idFile: String) {
             CircleImage(icon = R.drawable.ic_back) {
                 rootController?.popBackStack()
                 if (idFile.isEmpty()) {
-                    if (title.isNotEmpty() && value.isNotEmpty()) {
+                    if (title.isNotEmpty() || value.isNotEmpty()) {
                         database.daoFile().insertAll(model)
                     }
                 } else {
                     database.daoFile().updateTour(idFile.toInt(), title, value)
                 }
+                ReloadManager.current.listFileUpdate = database.daoFile().getListFile()
             }
             Spacer(modifier = Modifier.weight(1f))
             CircleImage(icon = R.drawable.ic_share) {
@@ -62,8 +66,7 @@ fun DetailScreen(idFolder: String, idFile: String) {
         }
 
         TextField(
-            modifier = Modifier
-                .fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth(),
             value = title,
             placeholder = { Text(text = "Title here...") },
             onValueChange = {
@@ -79,13 +82,11 @@ fun DetailScreen(idFolder: String, idFile: String) {
                 disabledIndicatorColor = Color.Transparent
             ),
             textStyle = TextStyle(
-                fontWeight = FontWeight.Bold,
-                fontSize = 35.sp
+                fontWeight = FontWeight.Bold, fontSize = 35.sp
             )
         )
         TextField(
-            modifier = Modifier
-                .fillMaxSize(),
+            modifier = Modifier.fillMaxSize(),
             value = value,
             placeholder = { Text(text = "Content here...") },
             onValueChange = {

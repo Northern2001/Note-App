@@ -1,6 +1,11 @@
 package com.example.noteapp.nav
 
 class DestinationName(isHasParam : Boolean = false) {
+    val splashScreen = if (isHasParam){
+        "splashScreen"
+    }else{
+        "splashScreen"
+    }
     val homeScreen = if (isHasParam){
         "homeScreen"
     }else{
